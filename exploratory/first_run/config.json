@@ -1,0 +1,7 @@
+{
+    "DESIGN_NAME": "SHA256",
+    "VERILOG_FILES": "dir::src/SHA256.v",
+    "CLOCK_PORT": "clk",
+    "LEC_ENABLE": true,
+    "DESIGN_IS_CORE": true
+}

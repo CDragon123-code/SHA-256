@@ -1,0 +1,8 @@
+{
+    "DESIGN_NAME": "SHA256",
+    "VERILOG_FILES": "dir::src/SHA256.v",
+    "CLOCK_PORT": "clk",
+    "SYNTH_ADDER_TYPE": "YOSYS",
+    "LEC_ENABLE": false,
+    "DESIGN_IS_CORE": true
+}

@@ -1,0 +1,8 @@
+{
+  "CLOCK_PERIOD": [50.0, 40.0, 30.0, 20.0, 10.0],
+  "SYNTH_ADDER_TYPE": ["YOSYS", "FA", "RCA", "CSA"],
+  "SYNTH_STRATEGY": ["DELAY 0", "DELAY 1", "DELAY 2", "DELAY 3", "DELAY 4", "AREA 0", "AREA 1", "AREA 2", "AREA 3"],
+  "preload": {
+    "STD_CELL_LIBRARY": "sky130_fd_sc_hd"
+  }
+}

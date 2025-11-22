@@ -1,0 +1,8 @@
+{
+  "CLOCK_PERIOD": [20.0, 18.0, 16.0, 14.0, 12.0, 10.0],
+  "SYNTH_STRATEGY": ["DELAY 0", "DELAY 1", "DELAY 2", "DELAY 3", "AREA 3"],
+  "FP_CORE_UTIL": [50.0, 60.0, 70.0, 80.0, 90.0],
+  "preload": {
+    "STD_CELL_LIBRARY": "sky130_fd_sc_hd"
+  }
+}
