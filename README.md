@@ -9,11 +9,11 @@
 A SHA-256 cryptographic accelerator ASIC on the SkyWater sky130A 130nm process, taken through the complete open-source EDA flow — RTL → GDSII → Signoff — passing FIPS 180-4 test vectors and 10 industrial-grade signoff checks.
 
 <details>
-<summary>🇨🇳 中文导语 / Chinese overview</summary>
+<summary>🇨🇳 中文版本 / 中文版 README</summary>
 
 基于 SkyWater sky130A 130nm 工艺的 SHA-256 密码加速器 ASIC，使用开源 EDA 工具链完成 RTL → GDSII → Signoff 全流程，通过 FIPS 180-4 测试向量验证和 10 项工业级签核。
 
-**完整中文设计文档（17 章全记录）见 [SHA-256-CHIP-DESIGN.md](SHA-256-CHIP-DESIGN.md)。**
+**完整中文版本见 [README.zh-CN.md](README.zh-CN.md)。**
 </details>
 
 <p align="center">
@@ -28,30 +28,39 @@ A SHA-256 cryptographic accelerator ASIC on the SkyWater sky130A 130nm process, 
 The complete open-source EDA flow from RTL to GDSII — one flow, one chain, fully open:
 
 ```mermaid
+%%{init: {"theme": "base", "themeVariables": {"fontSize": "16px", "primaryColor": "#1f2d3d", "primaryTextColor": "#ffffff", "primaryBorderColor": "#4a90d9", "lineColor": "#8899aa", "secondaryColor": "#2d3f53", "tertiaryColor": "#1a2533"}, "flowchart": {"nodeSpacing": 55, "rankSpacing": 80, "curve": "basis", "htmlLabels": true, "padding": 15}}}%%
 flowchart LR
-    subgraph frontend["Frontend · Synthesis"]
-        A["RTL source<br/>18 modules Verilog"] --> B["Yosys<br/>logic synthesis"]
-        B --> C["Gate-level netlist<br/>SHA256_synth.v"]
+    classDef front fill:#1f2d3d,stroke:#4a90d9,stroke-width:2px,color:#fff,font-size:16px
+    classDef back fill:#2d2138,stroke:#9b59b6,stroke-width:2px,color:#fff,font-size:16px
+    classDef signoff fill:#1c2b22,stroke:#27ae60,stroke-width:2px,color:#fff,font-size:16px
+    classDef final fill:#0f3d3a,stroke:#16a085,stroke-width:3px,color:#fff,font-size:18px
+
+    subgraph 前端["　前端 · 综合 　Frontend · Synthesis"]
+        direction LR
+        A["RTL 源码<br/>18 模块 Verilog"]:::front --> B["Yosys<br/>逻辑综合"]:::front
+        B --> C["门级网表<br/>SHA256_synth.v"]:::front
     end
 
-    subgraph backend["Backend · Physical (OpenROAD)"]
-        C --> D["Floorplan<br/>600×600 µm"]
-        D --> E["Place<br/>global/detail"]
-        E --> F["CTS<br/>clock tree synthesis"]
-        F --> G["Route<br/>detailed routing"]
-        G --> H{"Timing met?<br/>66.7 MHz"}
+    subgraph 后端["　后端 · 物理实现 　Backend · OpenROAD"]
+        direction LR
+        C --> D["Floorplan<br/>600×600 µm"]:::back
+        D --> E["Place<br/>全局/详细布局"]:::back
+        E --> F["CTS<br/>时钟树综合"]:::back
+        F --> G["Route<br/>详细布线"]:::back
+        G --> H{"时序收敛<br/>66.7 MHz?"}:::back
     end
 
-    subgraph signoff["Signoff · Verification"]
-        H -->|"setup +0.18ns MET"| I["STA<br/>OpenROAD"]
-        G --> J["IR Drop<br/>analyze_power_grid"]
-        I --> K["DRC<br/>Magic"]
-        K --> L["LVS<br/>Netgen, std-cell level"]
-        L --> M["GDSII<br/>SHA256_full.gds"]
+    subgraph 签核["　签核 · 验证 　Signoff · Verification"]
+        direction LR
+        H -->|"setup<br/>+0.18ns MET"| I["STA<br/>OpenROAD"]:::signoff
+        G --> J["IR Drop<br/>analyze_power_grid"]:::signoff
+        I --> K["DRC<br/>Magic"]:::signoff
+        K --> L["LVS<br/>Netgen 标准单元级"]:::signoff
+        L --> M["GDSII<br/>SHA256_full.gds"]:::signoff
         J --> M
     end
 
-    M --> N["✅ tape-out ready"]
+    M --> N["✅ tape-out ready"]:::final
 ```
 
 ---
@@ -102,33 +111,40 @@ flowchart LR
 The SHA-256 top level is built from 4 submodules across 18 RTL modules. The combinational chain inside the compression function is where the critical path sits.
 
 ```mermaid
+%%{init: {"theme": "base", "themeVariables": {"fontSize": "15px", "primaryColor": "#1f2d3d", "primaryTextColor": "#ffffff", "primaryBorderColor": "#4a90d9", "lineColor": "#8899aa", "secondaryColor": "#2d3f53", "tertiaryColor": "#1a2533"}, "flowchart": {"nodeSpacing": 50, "rankSpacing": 70, "curve": "basis", "htmlLabels": true, "padding": 15}}}%%
 flowchart TB
-    subgraph TOP["SHA256 top level"]
+    classDef top fill:#1f2d3d,stroke:#4a90d9,stroke-width:2px,color:#fff
+    classDef cmp fill:#2d2138,stroke:#e67e22,stroke-width:2.5px,color:#fff
+    classDef exp fill:#1c2b22,stroke:#27ae60,stroke-width:2px,color:#fff
+    classDef io fill:#0f3d3a,stroke:#16a085,stroke-width:2px,color:#fff
+
+    subgraph TOP["　SHA256 顶层 　Top Level"]
         direction LR
-        IN["data_in[31:0]<br/>soc / rst / rd / clk"] --> EXP["expansion<br/>message schedule"]
-        IN --> CNT["counter<br/>64-round"]
-        CNT --> CST["constants<br/>K[i] table"]
-        EXP --> CMP["compression<br/>compression function"]
+        IN["data_in[31:0]<br/>soc / rst / rd / clk"]:::io --> EXP["expansion<br/>消息调度"]:::exp
+        IN --> CNT["counter<br/>64 轮计数"]:::top
+        CNT --> CST["constants<br/>K[i] 常量表"]:::top
+        EXP --> CMP["compression<br/>压缩函数"]:::cmp
         CST --> CMP
-        CMP --> OUT["data_out[31:0]<br/>data_oe / eoc"]
+        CMP --> OUT["data_out[31:0]<br/>data_oe / eoc"]:::io
     end
 
-    subgraph CMPD["compression internals (critical path)"]
+    subgraph CMPD["　compression 内部 　（关键路径）Critical Path"]
         direction LR
-        US1["Σ1 (usigma1)"] --> CH["choice"]
-        US0["Σ0 (usigma0)"] --> MAJ["majority"]
-        CH --> ADD5["add5"]
-        MAJ --> ADD3["add3"]
-        ADD5 --> ADD2["add2"]
+        US1["Σ1<br/>usigma1"]:::cmp --> CH["choice<br/>Ch(x)"]:::cmp
+        US0["Σ0<br/>usigma0"]:::cmp --> MAJ["majority<br/>Maj(x)"]:::cmp
+        CH --> ADD5["add5"]:::cmp
+        MAJ --> ADD3["add3"]:::cmp
+        ADD5 --> ADD2["add2"]:::cmp
+        ADD3 --> ADD2
     end
 
-    subgraph EXPD["expansion internals"]
+    subgraph EXPD["　expansion 内部 　Message Schedule"]
         direction LR
-        S0["σ0 (lsigma0)"] --> ADD4["add4"]
-        S1["σ1 (lsigma1)"] --> ADD4
+        S0["σ0<br/>lsigma0"]:::exp --> ADD4["add4"]:::exp
+        S1["σ1<br/>lsigma1"]:::exp --> ADD4
     end
 
-    CMP -.-> CMPD
+    CMP -.->|关键路径<br/>40 级组合逻辑| CMPD
     EXP -.-> EXPD
 ```
 
