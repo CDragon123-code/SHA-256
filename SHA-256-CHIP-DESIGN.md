@@ -176,12 +176,47 @@ source /home/openroad/.local/env.sh
 
 | 端口 | 方向 | 位宽 | 说明 |
 |------|------|------|------|
-| `data` | inout | 32 | Wishbone 数据 |
+| `data_in` | in | 32 | 消息输入（替代原 inout data，便于 Yosys flatten） |
+| `data_out` | out | 32 | 哈希输出 |
+| `data_oe` | out | 1 | 输出使能（1 = 驱动 data_out） |
 | `eoc` | out | 1 | End-of-Conversion 结束标志 |
 | `clk` | in | 1 | 时钟 |
 | `rst` | in | 1 | 复位 |
 | `soc` | in | 1 | Start-of-Conversion 开始标志 |
 | `rd` | in | 1 | 读使能 |
+
+微架构（顶层 4 子模块 + 18 RTL 模块，压缩函数内部组合链为时序关键路径）：
+
+```mermaid
+flowchart TB
+    subgraph TOP["SHA256 顶层"]
+        direction LR
+        IN["data_in[31:0]<br/>soc / rst / rd / clk"] --> EXP["expansion<br/>消息调度"]
+        IN --> CNT["counter<br/>64轮计数"]
+        CNT --> CST["constants<br/>K[i] 常量表"]
+        EXP --> CMP["compression<br/>压缩函数"]
+        CST --> CMP
+        CMP --> OUT["data_out[31:0]<br/>data_oe / eoc"]
+    end
+
+    subgraph CMPD["compression 内部（关键路径所在）"]
+        direction LR
+        US1["Σ1 (usigma1)"] --> CH["choice"]
+        US0["Σ0 (usigma0)"] --> MAJ["majority"]
+        CH --> ADD5["add5"]
+        MAJ --> ADD3["add3"]
+        ADD5 --> ADD2["add2"]
+    end
+
+    subgraph EXPD["expansion 内部"]
+        direction LR
+        S0["σ0 (lsigma0)"] --> ADD4["add4"]
+        S1["σ1 (lsigma1)"] --> ADD4
+    end
+
+    CMP -.-> CMPD
+    EXP -.-> EXPD
+```
 
 ### 4.2 时序约束（SHA256.sdc）
 
@@ -208,6 +243,37 @@ set_output_delay -clock core_clock -min 0.0 [get_ports {eoc data}]
 ---
 
 ## 5. 完整设计流程
+
+### 5.0 流程总览
+
+从 RTL 到 GDSII 的完整开源 EDA 流程（一套流程、一条链、全开源）：
+
+```mermaid
+flowchart LR
+    subgraph 前端["前端 · 综合"]
+        A["RTL 源码<br/>18 模块 Verilog"] --> B["Yosys<br/>逻辑综合"]
+        B --> C["门级网表<br/>SHA256_synth.v"]
+    end
+
+    subgraph 后端["后端 · 物理实现 (OpenROAD)"]
+        C --> D["Floorplan<br/>600×600 µm"]
+        D --> E["Place<br/>全局/详细布局"]
+        E --> F["CTS<br/>时钟树综合"]
+        F --> G["Route<br/>详细布线"]
+        G --> H{"时序收敛<br/>66.7 MHz?"}
+    end
+
+    subgraph 签核["签核 · 验证"]
+        H -->|"setup +0.18ns MET"| I["STA<br/>OpenROAD"]
+        G --> J["IR Drop<br/>analyze_power_grid"]
+        I --> K["DRC<br/>Magic"]
+        K --> L["LVS<br/>Netgen 晶体管级"]
+        L --> M["GDSII<br/>SHA256_full.gds"]
+        J --> M
+    end
+
+    M --> N["✅ tape-out ready"]
+```
 
 ### 阶段 0：克隆与准备
 
@@ -1907,7 +1973,7 @@ EOF
 
 **与黑盒 LVS 的区别**：
 - 黑盒 LVS（v6pos）：标准单元作为黑盒处理，只比对顶层连线 → `Circuits match uniquely`
-- 晶体管级 LVS（本次）：展开标准单元内部，比对每个晶体管 → 6549/6549 devices、6438/6438 nets 匹配，`Circuits match uniquely`
+- 标准单元级 LVS（本次）：展开标准单元内部，比对每个晶体管 → 顶层 6549 个标准单元实例（X-instance）逐 cell 展开比对，展平后 70,205 晶体管 / 6438 nets 匹配，`Circuits match uniquely`
 
 **解决的 5 个技术难题**：
 
@@ -1964,7 +2030,7 @@ EOF
 
 > 输出：`D:\OpenROAD\SHA-256\README.md`（或仓库根目录）。必须包含：
 > 1. 一句话定位（这是什么、指标亮点）
-> 2. 芯片规格表（die 600×600µm、47296 cells、70 pins、15ns/66.7MHz 签核频率、sky130 工艺、20.3mW）
+> 2. 芯片规格表（die 600×600µm、6549 标准单元、70 pins、15ns/66.7MHz 签核频率、sky130 工艺、20.3mW）
 > 3. **10 项 signoff 结果表**（一张 Markdown 表，不是分散的报告文件，见 17.4）
 > 4. **性能对比表**（vs 参考论文 [LDFranck/SHA-256] MDPI Computers 2024：104,585 µm² / 97.89 MHz，见 17.5）
 > 5. 两个独特卖点各自成节（Magic/Netgen 升级 + fix_pin_order.py）

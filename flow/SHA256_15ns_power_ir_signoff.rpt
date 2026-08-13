@@ -54,7 +54,7 @@ Parameters:
   - VDD:        1.80V
   - Total Power: 20.3 mW (worst-case 25.9 mW with peak activity)
   - Core Area:  600 × 600 µm = 0.36 mm²
-  - Std Cells:  47296
+  - Std Cells:  6549 (logic cells; 47296 DEF components incl. 4140 tap + filler)
   - Power Grid: met1 rails (0.14µm) + met2/met3 straps + tap cells
 
 Calculation:

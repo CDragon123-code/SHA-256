@@ -5,7 +5,40 @@
 <p align="center">
 <img src="layout_view_full.png" width="600"/>
 </p>
-<p align="center"><sub>SHA-256 版图全貌（600×600 µm，sky130A，47296 标准单元）</sub></p>
+<p align="center"><sub>SHA-256 版图全貌（600×600 µm，sky130A，6,549 标准单元）</sub></p>
+
+---
+
+## 设计流程
+
+从 RTL 到 GDSII 的完整开源 EDA 流程（一套流程、一条链、全开源）：
+
+```mermaid
+flowchart LR
+    subgraph 前端["前端 · 综合"]
+        A["RTL 源码<br/>18 模块 Verilog"] --> B["Yosys<br/>逻辑综合"]
+        B --> C["门级网表<br/>SHA256_synth.v"]
+    end
+
+    subgraph 后端["后端 · 物理实现 (OpenROAD)"]
+        C --> D["Floorplan<br/>600×600 µm"]
+        D --> E["Place<br/>全局/详细布局"]
+        E --> F["CTS<br/>时钟树综合"]
+        F --> G["Route<br/>详细布线"]
+        G --> H{"时序收敛<br/>66.7 MHz?"}
+    end
+
+    subgraph 签核["签核 · 验证"]
+        H -->|"setup +0.18ns MET"| I["STA<br/>OpenROAD"]
+        G --> J["IR Drop<br/>analyze_power_grid"]
+        I --> K["DRC<br/>Magic"]
+        K --> L["LVS<br/>Netgen 晶体管级"]
+        L --> M["GDSII<br/>SHA256_full.gds"]
+        J --> M
+    end
+
+    M --> N["✅ tape-out ready"]
+```
 
 ---
 
@@ -20,8 +53,8 @@
 | Hold slack | +0.024 ns (MET) |
 | 核心面积 | 56,437 µm² (0.056 mm²) |
 | 利用率 | 18% |
-| 标准单元数 | 47,296 |
-| 晶体管数 | 6,549 (LVS 确认) |
+| 标准单元数 | 6,549 |
+| 晶体管数 | 70,205（35,089 pFET + 35,116 nFET，Netgen 展平）|
 | 总功耗 | 20.3 mW |
 | 峰值功耗 | 25.9 mW |
 | 泄漏功耗 | 21.9 nW |
@@ -45,7 +78,7 @@
 | 6 | DRC 物理规则 | Magic 8.3.681 | PASS (0 违规) | `run_magic_drc_signoff.tcl` |
 | 7 | 天线效应 | OpenROAD + Magic | PASS (51 二极管) | `run_antenna_check.tcl` |
 | 8 | LVS (门级) | Netgen 1.5.323 | PASS | `run_lvs_v6_pos.py` |
-| 9 | LVS (晶体管级) | Netgen + fix_pin_order | PASS (6549 器件, 6438 net) | `run_transistor_lvs_pipeline.sh` |
+| 9 | LVS (标准单元级) | Netgen + fix_pin_order | PASS (6549 单元, 6438 net) | `run_transistor_lvs_pipeline.sh` |
 | 10 | 功耗 + IR drop | OpenROAD analyze_power_grid | PASS (worst rail 4.32 mV << 180 mV) | `SHA256_15ns_ir_drop_real_signoff.rpt` |
 
 ---
@@ -62,7 +95,7 @@
 | 流程 | 手工 OpenROAD | OpenLANE (自动) |
 | RTL 综合 | Yosys (无 flatten) | OpenLANE/Yosys |
 | FIPS 180-4 后仿 | PASS | 未报告 |
-| 晶体管级 LVS | PASS (6549 器件) | 未报告 |
+| 标准单元级 LVS | PASS (6549 单元) | 未报告 |
 | DRC | 0 违规 | 未报告 |
 | 天线效应 | 0 违规 (51 二极管) | 未报告 |
 | IR drop (真实) | worst rail 4.32 mV | 未报告 |
@@ -186,6 +219,43 @@ SHA-256/
 <img src="layout_view_stdcell_clkinv.png" width="200"/>
 </p>
 <p align="center"><sub>标准单元版图：DFF / NAND2 / XOR2 / Clock Buffer</sub></p>
+
+---
+
+## 微架构
+
+SHA-256 顶层由 4 个子模块 + 18 个 RTL 模块构成。压缩函数（compression）内的组合链是时序关键路径所在。
+
+```mermaid
+flowchart TB
+    subgraph TOP["SHA256 顶层"]
+        direction LR
+        IN["data_in[31:0]<br/>soc / rst / rd / clk"] --> EXP["expansion<br/>消息调度"]
+        IN --> CNT["counter<br/>64轮计数"]
+        CNT --> CST["constants<br/>K[i] 常量表"]
+        EXP --> CMP["compression<br/>压缩函数"]
+        CST --> CMP
+        CMP --> OUT["data_out[31:0]<br/>data_oe / eoc"]
+    end
+
+    subgraph CMPD["compression 内部（关键路径所在）"]
+        direction LR
+        US1["Σ1 (usigma1)"] --> CH["choice"]
+        US0["Σ0 (usigma0)"] --> MAJ["majority"]
+        CH --> ADD5["add5"]
+        MAJ --> ADD3["add3"]
+        ADD5 --> ADD2["add2"]
+    end
+
+    subgraph EXPD["expansion 内部"]
+        direction LR
+        S0["σ0 (lsigma0)"] --> ADD4["add4"]
+        S1["σ1 (lsigma1)"] --> ADD4
+    end
+
+    CMP -.-> CMPD
+    EXP -.-> EXPD
+```
 
 ---
 
