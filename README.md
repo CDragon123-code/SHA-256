@@ -289,11 +289,16 @@ See [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) for a detailed file index.
 
 ## Layout Previews
 
-<p align="center">
-<img src="layout_view_zoom_topleft.png" width="240"/>
-<img src="layout_view_layers.png" width="600"/>
-</p>
-<p align="center"><sub>Left: top-left corner (zoomed in) &nbsp;·&nbsp; Right: layer stack view</sub></p>
+<table align="center">
+  <tr>
+    <td align="center"><img src="layout_view_zoom_topleft.png" width="240"/></td>
+    <td align="center"><img src="layout_view_layers.png" width="600"/></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>Left: top-left corner (zoomed in)</sub></td>
+    <td align="center"><sub>Right: layer stack view</sub></td>
+  </tr>
+</table>
 
 <p align="center">
 <img src="layout_view_stdcell_dfxtp.png" width="200"/>
