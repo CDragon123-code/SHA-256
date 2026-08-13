@@ -28,39 +28,25 @@ A SHA-256 cryptographic accelerator ASIC on the SkyWater sky130A 130nm process, 
 The complete open-source EDA flow from RTL to GDSII — one flow, one chain, fully open:
 
 ```mermaid
-%%{init: {"theme": "base", "themeVariables": {"fontSize": "16px", "primaryColor": "#1f2d3d", "primaryTextColor": "#ffffff", "primaryBorderColor": "#4a90d9", "lineColor": "#8899aa", "secondaryColor": "#2d3f53", "tertiaryColor": "#1a2533"}, "flowchart": {"nodeSpacing": 55, "rankSpacing": 80, "curve": "basis", "htmlLabels": true, "padding": 15}}}%%
-flowchart LR
-    classDef front fill:#1f2d3d,stroke:#4a90d9,stroke-width:2px,color:#fff,font-size:16px
-    classDef back fill:#2d2138,stroke:#9b59b6,stroke-width:2px,color:#fff,font-size:16px
-    classDef signoff fill:#1c2b22,stroke:#27ae60,stroke-width:2px,color:#fff,font-size:16px
-    classDef final fill:#0f3d3a,stroke:#16a085,stroke-width:3px,color:#fff,font-size:18px
+%%{init: {"theme": "base", "themeVariables": {"fontSize": "16px", "actorBkg": "#1f2d3d", "actorBorder": "#4a90d9", "actorTextColor": "#ffffff", "signalColor": "#8899aa", "signalTextColor": "#cccccc", "noteBkgColor": "#2d3f53", "noteBorderColor": "#9b59b6", "noteTextColor": "#ffffff", "activationBkgColor": "#1a2533"}, "sequence": {"width": 130, "actorFontSize": 15, "noteFontSize": 14, "messageFontSize": 14, "messageAlign": "center", "actorMargin": 40}}}%%
+sequenceDiagram
+    autonumber
+    participant RTL as RTL 源码<br/>(18 模块 Verilog)
+    participant SYN as Yosys<br/>综合
+    participant OR as OpenROAD<br/>后端实现
+    participant MG as Magic<br/>DRC / GDS
+    participant NG as Netgen<br/>LVS
+    participant OUT as 交付<br/>GDSII
 
-    subgraph 前端["　前端 · 综合 　Frontend · Synthesis"]
-        direction LR
-        A["RTL 源码<br/>18 模块 Verilog"]:::front --> B["Yosys<br/>逻辑综合"]:::front
-        B --> C["门级网表<br/>SHA256_synth.v"]:::front
-    end
-
-    subgraph 后端["　后端 · 物理实现 　Backend · OpenROAD"]
-        direction LR
-        C --> D["Floorplan<br/>600×600 µm"]:::back
-        D --> E["Place<br/>全局/详细布局"]:::back
-        E --> F["CTS<br/>时钟树综合"]:::back
-        F --> G["Route<br/>详细布线"]:::back
-        G --> H{"时序收敛<br/>66.7 MHz?"}:::back
-    end
-
-    subgraph 签核["　签核 · 验证 　Signoff · Verification"]
-        direction LR
-        H -->|"setup<br/>+0.18ns MET"| I["STA<br/>OpenROAD"]:::signoff
-        G --> J["IR Drop<br/>analyze_power_grid"]:::signoff
-        I --> K["DRC<br/>Magic"]:::signoff
-        K --> L["LVS<br/>Netgen 标准单元级"]:::signoff
-        L --> M["GDSII<br/>SHA256_full.gds"]:::signoff
-        J --> M
-    end
-
-    M --> N["✅ tape-out ready"]:::final
+    RTL->>SYN: 逻辑综合
+    SYN->>OR: 门级网表<br/>SHA256_synth.v
+    Note over OR: Floorplan 600×600 µm<br/>→ Place → CTS → Route
+    OR->>OR: 时序收敛 66.7 MHz<br/>(setup +0.18ns MET)
+    OR->>MG: DEF → GDSII<br/>SHA256_full.gds
+    MG->>NG: 标准单元级 LVS<br/>(6549 cells / 6438 nets)
+    OR->>MG: IR Drop 求解<br/>worst rail 4.32 mV
+    Note over MG,NG: 10 项签核全过<br/>DRC 0 违规 · LVS 匹配 · 天线 51 二极管
+    NG-->>OUT: ✅ tape-out ready
 ```
 
 ---
