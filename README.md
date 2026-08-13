@@ -296,6 +296,25 @@ See [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) for a detailed file index.
 
 ---
 
+## Heat Maps (Placement & Routing Analysis)
+
+The six heat maps below are rendered from the OpenROAD GUI (from the `.odb` database). They visualize the spatial distribution of routing congestion, IR drop, and cell/pin/power density across the die (600×600 μm).
+
+<table align="center">
+  <tr>
+    <td align="center"><img src="Estimated Congestion (RUDY).png" width="240"/><br/><sub><b>1 · Estimated Congestion (RUDY)</b></sub></td>
+    <td align="center"><img src="IR Drop.png" width="240"/><br/><sub><b>2 · IR Drop</b></sub></td>
+    <td align="center"><img src="Pin Density.png" width="240"/><br/><sub><b>3 · Pin Density</b></sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="Placement Density.png" width="240"/><br/><sub><b>4 · Placement Density</b></sub></td>
+    <td align="center"><img src="Power Density.png" width="240"/><br/><sub><b>5 · Power Density</b></sub></td>
+    <td align="center"><img src="Routing Congestion.png" width="240"/><br/><sub><b>6 · Routing Congestion</b></sub></td>
+  </tr>
+</table>
+
+---
+
 ## FIPS 180-4 Verification
 
 | Test vector | Input | Expected hash | Post-sim result |

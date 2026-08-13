@@ -224,6 +224,25 @@ python3 run_lvs_v6_pos.py
 
 ---
 
+## 热力图（布局与布线分析）
+
+以下六张热力图由 OpenROAD GUI 从 `.odb` 数据库导出，可视化芯片（600×600 μm）上布线拥塞、IR 压降、以及单元/引脚/功耗密度的空间分布。
+
+<table align="center">
+  <tr>
+    <td align="center"><img src="Estimated Congestion (RUDY).png" width="240"/><br/><sub><b>1 · Estimated Congestion (RUDY)</b></sub></td>
+    <td align="center"><img src="IR Drop.png" width="240"/><br/><sub><b>2 · IR Drop</b></sub></td>
+    <td align="center"><img src="Pin Density.png" width="240"/><br/><sub><b>3 · Pin Density</b></sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="Placement Density.png" width="240"/><br/><sub><b>4 · Placement Density</b></sub></td>
+    <td align="center"><img src="Power Density.png" width="240"/><br/><sub><b>5 · Power Density</b></sub></td>
+    <td align="center"><img src="Routing Congestion.png" width="240"/><br/><sub><b>6 · Routing Congestion</b></sub></td>
+  </tr>
+</table>
+
+---
+
 ## 致谢
 
 - **RTL 源码** 来自 [LDFranck/SHA-256](https://github.com/LDFranck/SHA-256)，按 Apache-2.0 许可证使用（详见 [NOTICE](NOTICE)）
