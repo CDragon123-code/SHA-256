@@ -1,0 +1,32 @@
+SHA-256 ASIC — OpenROAD Signoff
+================================
+
+This project is a derivative work based on the SHA-256 hardware
+implementation originally published by:
+
+    LDFranck/SHA-256
+    https://github.com/LDFranck/SHA-256
+
+    Copyright (c) Lucas Daudt Franck, Gabriel Augusto Ginja,
+    João Paulo Carmo, José A. Afonso, Maximiliam Luppe
+
+    Published in:
+    Franck, L.D.; Ginja, G.A.; Carmo, J.P.; Afonso, J.A.; Luppe, M.
+    "Custom ASIC Design for SHA-256 Using Open-Source Tools"
+    Computers 2024, 13, 9. https://doi.org/10.3390/computers13010009
+
+The original Verilog RTL sources (Verilog/*.v, with the exception of
+interface modifications described below) are licensed under the
+Apache License 2.0. See the LICENSE file for the full terms.
+
+Modifications by this project:
+  - The top-level module interface was changed from an `inout [31:0]
+    data` bidirectional bus to a split interface (`data_in`,
+    `data_out`, `data_oe`) to enable safe flattening under Yosys.
+  - A complete signoff flow (synthesis, place & route, DRC, LVS,
+    static timing analysis, power/IR-drop analysis) was added under
+    the flow/ directory.
+
+New contributions added by this project (signoff scripts, Tcl flows,
+documentation, and report generation) are licensed under the MIT
+License. See LICENSE-CDragon for those terms.

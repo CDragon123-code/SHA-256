@@ -1,0 +1,53 @@
+{
+    "DESIGN_NAME": "user_project_wrapper",
+    "DESIGN_IS_CORE": 0,
+    "VERILOG_FILES": [
+        "dir::../Verilog/SHA256.v",
+        "dir::user_project_wrapper.v"
+    ],
+    "CLOCK_PERIOD": 15,
+    "CLOCK_PORT": "wb_clk_i",
+    "CLOCK_NET": "wb_clk_i",
+    "RT_MAX_LAYER": "met5",
+    "RT_MIN_LAYER": "met1",
+    "FP_SIZING": "absolute",
+    "FP_CORE_UTIL": 45,
+    "DIE_AREA": "0 0 2920 3520",
+    "CORE_AREA": "10 10 2910 3510",
+    "VDD_NETS": ["vccd1", "vccd2"],
+    "GND_NETS": ["vssd1", "vssd2"],
+    "FP_PDN_MULTILAYER": 1,
+    "FP_PDN_CORE_RING": 1,
+    "FP_PDN_CHECK_NODES": 1,
+    "SYNTH_USE_PG_PINS_DEFINES": "USE_POWER_PINS",
+    "GLB_RT_MAX_DIODE_INS_ITERS": 10,
+    "PL_BASIC_PLACEMENT": 0,
+    "STD_CELL_LIBRARY": "sky130_fd_sc_hd",
+    "BASE_SDC_FILE": "dir::user_project_wrapper.sdc",
+    "FP_IO_VLENGTH": "4",
+    "FP_IO_HLENGTH": "4",
+    "FP_IO_VEXTEND": "2",
+    "FP_IO_HEXTEND": "2",
+    "FP_IO_VTHICKNESS_MULT": "4",
+    "FP_IO_HTHICKNESS_MULT": "4",
+    "FP_IO_MIN_DISTANCE": "0.5",
+    "QUIT_ON_TIMING_VIOLATIONS": 0,
+    "QUIT_ON_MAGIC_DRC": 0,
+    "QUIT_ON_LVS_ERROR": 0,
+    "QUIT_ON_KLAYOUT_DRC": 0,
+    "QUIT_ON_HOLD_VIOLATIONS": 0,
+    "RUN_KLAYOUT_DRC": 1,
+    "RUN_CVC": 0,
+    "MAGIC_GENERATE_GDS": 1,
+    "RUN_LVS": 1,
+    "QUIT_ON_TR_DRC": 0,
+    "EXTRA_LEFS": [
+        "/usr/local/share/pdk/sky130A/libs.ref/sky130_fd_sc_hd/techlef/sky130_fd_sc_hd__nom.tlef"
+    ],
+    "EXTRA_LIBS": [
+        "/usr/local/share/pdk/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib"
+    ],
+    "EXTRA_GDS_FILES": [
+        "/usr/local/share/pdk/sky130A/libs.ref/sky130_fd_sc_hd/gds/sky130_fd_sc_hd.gds"
+    ]
+}

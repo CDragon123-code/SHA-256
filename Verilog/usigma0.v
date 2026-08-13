@@ -1,14 +1,11 @@
 /*!
 * @file usigma0.v
-* @brief Uppercase Sigma 0 Module
-* @author LDFranck
-* @date February 2023
-* @version v1
-*
+* @brief Uppercase Sigma 0 Module (Σ0 for SHA-256 Compression)
+* @author LDFranck-style (recovered from SHA256 spec)
+* @date 2026
 * @details
-*  Uppercase Sigma 0 module implementation in Verilog.
-*  The module returns the result of 'SIGMA0' function applied 
-*  to the input signal 'in'.
+*  SHA-256 FIPS 180-4 §4.1.2:
+*    Σ0(x) = ROTR^2(x) XOR ROTR^13(x) XOR ROTR^22(x)
 */
 
 module usigma0(out, in);
@@ -16,7 +13,7 @@ module usigma0(out, in);
 	input  [31:0] in;
 	output [31:0] out;
 
-	wire [31:0] net [2:0];	//!< 3x 32-bits words
+	wire [31:0] net [2:0];
 
 	ror #(2)  u0(net[0], in);
 	ror #(13) u1(net[1], in);

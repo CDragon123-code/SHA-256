@@ -21,7 +21,8 @@ module expansion(out, in, clk, sel);
 
 	reg  [31:0] mem [0:15];
 	wire [31:0] a00, a01, a09, a14;
-	wire [31:0] mux_out, add_out, lsigma0_out, lsigma1_out;
+	(* keep *) wire [31:0] mux_out;
+	wire [31:0] add_out, lsigma0_out, lsigma1_out;
 
 	always @(posedge clk) begin
 		mem[0]  <=  mem[1]; 

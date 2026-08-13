@@ -61,24 +61,26 @@
 `include "expansion.v"
 `include "compression.v"
 
-module SHA256(data, eoc, clk, rst, soc, rd);
+module SHA256(data_in, data_out, data_oe, eoc, clk, rst, soc, rd);
 
 	input  clk, rst, soc, rd;
-	inout  [31:0] data;
+	input  [31:0] data_in;    // message input (replaces inout data)
+	output [31:0] data_out;   // hash output (replaces inout data)
+	output        data_oe;    // output enable (1 = drive data_out)
 	output eoc;
 
 	// Internal control signals:
-	wire rst_n, soc_n;
+	wire soc_n;
 	wire ieoc, ird;
-	
-	assign rst_n = ~rst;
+
 	assign soc_n = ~soc;
 	assign ird = rd & ieoc;
 
-	// Bidirectional bus:
-	wire [31:0] idata, odata;
-	assign idata = data;
-	assign data  = (ird)  ? odata : 32'bz;
+	// Split bus interface (no inout — Yosys can safely flatten):
+	wire [31:0] idata = data_in;
+	wire [31:0] odata;
+	assign data_out = odata;
+	assign data_oe  = ird;
 
 	// Counter sub-module:
 	wire sel;
@@ -97,7 +99,7 @@ module SHA256(data, eoc, clk, rst, soc, rd);
 
 	// Compression sub-module:
 	wire [255:0] hash;
-	compression u3(hash, msg, k, clk, rst_n, soc, ieoc);
+	compression u3(hash, msg, k, clk, rst, soc, ieoc);
 
 	// Output MUX:
 	wire [2:0]  abc;

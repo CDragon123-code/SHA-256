@@ -1,14 +1,11 @@
 /*!
 * @file usigma1.v
-* @brief Uppercase Sigma 1 Module
-* @author LDFranck
-* @date February 2023
-* @version v1
-*
+* @brief Uppercase Sigma 1 Module (Σ1 for SHA-256 Compression)
+* @author LDFranck-style (recovered from SHA256 spec)
+* @date 2026
 * @details
-*  Uppercase Sigma 1 module implementation in Verilog.
-*  The module returns the result of 'SIGMA1' function applied 
-*  to the input signal 'in'.
+*  SHA-256 FIPS 180-4 §4.1.2:
+*    Σ1(x) = ROTR^6(x) XOR ROTR^11(x) XOR ROTR^25(x)
 */
 
 module usigma1(out, in);
@@ -16,7 +13,7 @@ module usigma1(out, in);
 	input  [31:0] in;
 	output [31:0] out;
 
-	wire [31:0] net [2:0];	//!< 3x 32-bits words
+	wire [31:0] net [2:0];
 
 	ror #(6)  u0(net[0], in);
 	ror #(11) u1(net[1], in);

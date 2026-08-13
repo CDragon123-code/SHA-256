@@ -1,37 +1,55 @@
 /*!
 * @file wvar.v
-* @brief Compression Working Variables Module
-* @author LDFranck
-* @date February 2023
-* @version v1
-*
+* @brief SHA-256 Compression Working Variable Register (A..H)
+* @author LDFranck-style (recovered from compression.v port map)
+* @date 2026
 * @details
-*  Compression working variable subcircuit module implementation in Verilog.
-*  The module handles all internal control logic for the working variables
-*  in the compression function. The module outputs the final hash once all
-*  compression rounds are done.
+*  Each instance holds one SHA-256 working variable (a,b,c,d,e,f,g,h).
+*  - Reset (rst high) or start-of-conversion (soc high):
+*      reload the 32-bit initial hash constant (parameter IV)
+*  - Normal operation (soc=0, rst=0, eoc=0):
+*      register updates every cycle: q <= d (rotating / next-state value)
+*  - End-of-conversion (eoc high):
+*      register holds final working value; hash_out = IV + q
+*      (SHA-256 standard final addition: H[i]' = H[i] + working_var[i])
+*
+*  Port order matches compression.v instantiation:
+*      wvar uA(Ha, A, addA, IV_H0, clk, rst, soc, eoc);
 */
 
-module wvar(H_out, X_out, in, H0, clk, rst_n, soc, eoc);
+module wvar(hash_out, q, d, IV, clk, rst, soc, eoc);
 
-	input  clk, rst_n, soc, eoc;
-	input  [31:0] in, H0;
-	output [31:0] H_out, X_out;
+	input  [31:0] d;
+	input  [31:0] IV;       // SHA-256 initial hash constant (H0..H7)
+	input         clk;
+	input         rst;      // active-high synchronous reset (load IV)
+	input         soc;      // start of conversion (1 clk pulse → reload IV)
+	input         eoc;      // end of conversion → q holds, hash_out = IV + q
 
-	reg  [31:0] A, A0;
-	wire [31:0] dA, dA0, add_out;
+	output [31:0] hash_out; // final hash word (valid when eoc == 1)
+	output [31:0] q;        // current working variable (fed into comb logic / next stage)
 
+	reg [31:0] q;
+
+	// === 32-bit synchronous register ===
+	//   rst high  → load IV (global reset)
+	//   soc high  → load IV (new message block start: reload initial hash)
+	//   eoc low   → normal update: q <= d
+	//   eoc high  → hold (compression done)
+	// NOTE: use active-high rst (not rst_n) to avoid Yosys reset-pattern
+	//       misoptimization that drops IV=1 constant bits.
 	always @(posedge clk) begin
-		A  <= dA;
-		A0 <= dA0;
+		if (rst)
+			q <= IV;
+		else if (soc)
+			q <= IV;
+		else if (!eoc)
+			q <= d;
+		// else eoc == 1: hold final value
 	end
 
-	add2 u0(add_out, A, A0);
-
-	assign dA0 = (~rst_n) ? H0 : (soc) ? add_out : A0;
-	assign dA  = (~rst_n) ? 32'd 0 : (soc) ? add_out : (eoc) ? A : in;
-	
-	assign X_out = A;
-	assign H_out = add_out;
+	// === SHA-256 final step: H[i] += working_var[i] ===
+	//   hash_out = IV (initial H[i]) + q (final working var after 64 rounds)
+	add2 u_final_add(hash_out, IV, q);
 
 endmodule

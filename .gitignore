@@ -1,0 +1,119 @@
+# Binary build artifacts (regenerate via flow scripts)
+*.odb
+*.vvp
+*.spef
+*.gds
+*.def
+*.cdl
+
+# Temporary files
+*.log
+*.tmp
+*~
+__pycache__/
+
+# Upstream LDFranck/SHA-256 exploratory data (not part of this signoff project)
+exploratory/
+
+# Upstream OpenLANE Docker setup scripts (unused; this project uses OpenROAD directly)
+scripts/setupDocker.sh
+scripts/setupUser.sh
+
+# One-off debugging scripts (root level)
+check_png.py
+diagnose_gds.py
+find_density.py
+probe_api.py
+
+# Unreferenced intermediate layout renders
+layout_view_final_6um.png
+layout_view_final_12um.png
+layout_view_final_24um.png
+layout_view_layers.png
+layout_view_v2_full.png
+
+# --- flow/ 可清理文件（见 PROJECT_STRUCTURE.md 第 9 节）---
+
+# 临时调试脚本
+flow/tmp_*.sh
+flow/tmp_*.py
+flow/_*.sh
+flow/_*.py
+flow/sky130_sim/_check_diff.py
+flow/sky130_sim/__pycache__/
+
+# 调试/检查/诊断/测试脚本
+flow/check_*.sh
+flow/check_*.ps1
+flow/debug_*.py
+flow/debug_*.tcl
+flow/diag*.sh
+flow/diag*.tcl
+flow/peek_*.sh
+flow/test_*.tcl
+flow/test_*.py
+
+# 可重新下载的工具包 / PDK
+flow/*.tgz
+flow/*.tar.xz
+flow/*.tar.gz
+
+# 旧版本产物（14.3ns 已被 15ns 取代）
+flow/SHA256_14.3ns.*
+
+# 早期流程脚本（已被取代）
+flow/openroad_flow_98mhz*.tcl
+flow/run_12_3b_*.sh
+flow/run_12_1_*.sh
+flow/run_12_*.sh
+flow/openroad_flow_14.3ns.tcl
+
+# WSL 同步脚本（一次性）
+flow/wsl_step*.sh
+flow/wsl_*.sh
+
+# 早期笔记
+flow/_*.md
+
+# 其他一次性脚本
+flow/run_plan_b.sh
+flow/run_pipeline_now.sh
+flow/tmp_ab_test.sh
+flow/verify_cells.sh
+flow/compare_cells.sh
+flow/sample_sky130_insts.sh
+flow/get_cell_func.sh
+flow/find_stdcells_spice.sh
+flow/find_subckt_kw.sh
+flow/run_klayout_direct.sh
+flow/list_all_ports.py
+flow/extract_def_pins.sh
+flow/extract_lvs_clean.tcl
+flow/show_def_ports.py
+flow/gds_stats.py
+flow/gds_sanity_check.sh
+flow/klayout_listcells.py
+flow/def2gds_*.py
+flow/def2gds_*.tcl
+flow/merge_stdcell_gds.py
+flow/gen_gds_signoff.tcl
+flow/export_cdl.tcl
+flow/magic_extract.sh
+flow/health_check.sh
+flow/gui_startup.tcl
+flow/preflight_open_pdks.sh
+flow/run_all_after_pdk_ready.sh
+flow/download_sky130A.ps1
+flow/download_magic_netgen.ps1
+flow/unpack_pdk.sh
+flow/fix_build_and_layer_mask.sh
+flow/fix_pdk_layout.sh
+flow/fix_proxy_and_libtool.sh
+flow/fix_antenna_and_route_drc.tcl
+flow/fix_antenna_v2.tcl
+flow/repair_antennas.tcl
+flow/build_magic_netgen_direct.sh
+flow/lvs.py
+flow/schematic_cdl_v3_libcdl_aligned.py
+flow/netgen_run_lvs.sh
+flow/strip_parasitics.py
