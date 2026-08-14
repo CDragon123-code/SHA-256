@@ -3,6 +3,7 @@
 *.vvp
 *.spef
 *.gds
+!flow/SHA256_15ns_full.gds
 *.def
 *.cdl
 
