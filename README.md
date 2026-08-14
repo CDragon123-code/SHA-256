@@ -262,7 +262,8 @@ SHA-256/
 │   ├── run_lvs_v6_pos.py                # std-cell-level LVS
 │   ├── SHA256_15ns_ir_drop_real_signoff.rpt  # IR drop report
 │   ├── SHA256_15ns_critical_path_analysis.md # critical path analysis
-│   └── SHA256_15ns_power_visualization.html  # power visualization
+│   ├── SHA256_15ns_power_visualization.html  # power visualization
+│   └── SHA256_15ns_full.gds                  # ★ FINAL GDSII layout (tapeout-ready, shipped in-repo)
 ├── caravel/                # Caravel MPW integration
 ├── SHA-256-CHIP-DESIGN.md  # full design doc (17 chapters, Chinese)
 ├── PROJECT_STRUCTURE.md    # file index

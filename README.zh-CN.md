@@ -222,6 +222,8 @@ magic -dnull -noconsole < run_magic_drc_signoff.tcl
 python3 run_lvs_v6_pos.py
 ```
 
+> **✅ 最终版图已随仓库分发**：`flow/SHA256_15ns_full.gds`（约 20 MB，可流片完整 mask）已纳入版本控制，clone 即可获取，无需重新跑流程。其余 `.gds` 中间产物由 `.gitignore` 忽略。
+
 ---
 
 ## 热力图（布局与布线分析）
